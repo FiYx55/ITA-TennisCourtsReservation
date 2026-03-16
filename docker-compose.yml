@@ -1,5 +1,3 @@
-version: "3.9"
-
 services:
   # ──────────────────────────────────────────────
   # Infrastructure
@@ -10,85 +8,85 @@ services:
     container_name: tennis-postgres
     restart: unless-stopped
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT}:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
       - ./init-databases.sql:/docker-entrypoint-initdb.d/init-databases.sql
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER}"]
       interval: 5s
       timeout: 5s
       retries: 5
 
-  rabbitmq:
-    image: rabbitmq:3-management-alpine
-    container_name: tennis-rabbitmq
-    restart: unless-stopped
-    environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
-    ports:
-      - "5672:5672"     # AMQP protocol
-      - "15672:15672"   # Management UI
-    volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
-    healthcheck:
-      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # rabbitmq:
+  #   image: rabbitmq:3-management-alpine
+  #   container_name: tennis-rabbitmq
+  #   restart: unless-stopped
+  #   environment:
+  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+  #   ports:
+  #     - "5672:5672"     # AMQP protocol
+  #     - "15672:15672"   # Management UI
+  #   volumes:
+  #     - rabbitmq_data:/var/lib/rabbitmq
+  #   healthcheck:
+  #     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
 
   # ──────────────────────────────────────────────
   # Application Services
   # ──────────────────────────────────────────────
 
-  web-client:
-    build:
-      context: ./web-client
-      dockerfile: Dockerfile
-    container_name: tennis-web-client
-    ports:
-      - "3000:3000"
-    depends_on:
-      - api-gateway
+  # web-client:
+  #   build:
+  #     context: ./web-client
+  #     dockerfile: Dockerfile
+  #   container_name: tennis-web-client
+  #   ports:
+  #     - "${WEB_CLIENT_PORT}:${WEB_CLIENT_PORT}"
+  #   depends_on:
+  #     - api-gateway
 
-  api-gateway:
-    build:
-      context: ./api-gateway
-      dockerfile: Dockerfile
-    container_name: tennis-gateway
-    ports:
-      - "4000:4000"
-    environment:
-      PORT: 4000
-      USER_SERVICE_GRPC_URL: user-service:50051
-      COURT_SERVICE_URL: http://court-service:8000
-      RESERVATION_SERVICE_URL: http://reservation-service:3001
-    depends_on:
-      - user-service
-      - court-service
-      - reservation-service
+  # api-gateway:
+  #   build:
+  #     context: ./api-gateway
+  #     dockerfile: Dockerfile
+  #   container_name: tennis-gateway
+  #   ports:
+  #     - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+  #   environment:
+  #     PORT: ${API_GATEWAY_PORT}
+  #     USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
+  #     COURT_SERVICE_URL: http://court-service:${COURT_SERVICE_PORT}
+  #     RESERVATION_SERVICE_URL: http://reservation-service:${RESERVATION_SERVICE_PORT}
+  #   depends_on:
+  #     - user-service
+  #     - court-service
+  #     - reservation-service
 
-  user-service:
-    build:
-      context: ./user-service
-      dockerfile: Dockerfile
-    container_name: tennis-user-service
-    ports:
-      - "50051:50051"
-    environment:
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: users_db
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres
-      GRPC_PORT: 50051
-    depends_on:
-      postgres:
-        condition: service_healthy
+  # user-service:
+  #   build:
+  #     context: ./user-service
+  #     dockerfile: Dockerfile
+  #   container_name: tennis-user-service
+  #   ports:
+  #     - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+  #   environment:
+  #     DATABASE_HOST: postgres
+  #     DATABASE_PORT: 5432
+  #     DATABASE_NAME: users_db
+  #     DATABASE_USER: ${POSTGRES_USER}
+  #     DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+  #     GRPC_PORT: ${USER_SERVICE_PORT}
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
 
   court-service:
     build:
@@ -96,51 +94,51 @@ services:
       dockerfile: Dockerfile
     container_name: tennis-court-service
     ports:
-      - "8000:8000"
+      - "${COURT_SERVICE_PORT}:${COURT_SERVICE_PORT}"
     environment:
       DATABASE_HOST: postgres
       DATABASE_PORT: 5432
       DATABASE_NAME: courts_db
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres
-      APP_PORT: 8000
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_PORT: ${COURT_SERVICE_PORT}
     depends_on:
       postgres:
         condition: service_healthy
 
-  reservation-service:
-    build:
-      context: ./reservation-service
-      dockerfile: Dockerfile
-    container_name: tennis-reservation-service
-    ports:
-      - "3001:3001"
-    environment:
-      DATABASE_HOST: postgres
-      DATABASE_PORT: 5432
-      DATABASE_NAME: reservations_db
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: postgres
-      APP_PORT: 3001
-      USER_SERVICE_GRPC_URL: user-service:50051
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-    depends_on:
-      postgres:
-        condition: service_healthy
-      rabbitmq:
-        condition: service_healthy
+  # reservation-service:
+  #   build:
+  #     context: ./reservation-service
+  #     dockerfile: Dockerfile
+  #   container_name: tennis-reservation-service
+  #   ports:
+  #     - "${RESERVATION_SERVICE_PORT}:${RESERVATION_SERVICE_PORT}"
+  #   environment:
+  #     DATABASE_HOST: postgres
+  #     DATABASE_PORT: 5432
+  #     DATABASE_NAME: reservations_db
+  #     DATABASE_USER: ${POSTGRES_USER}
+  #     DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+  #     APP_PORT: ${RESERVATION_SERVICE_PORT}
+  #     USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
+  #     RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+  #   depends_on:
+  #     postgres:
+  #       condition: service_healthy
+  #     rabbitmq:
+  #       condition: service_healthy
 
-  notification-service:
-    build:
-      context: ./notification-service
-      dockerfile: Dockerfile
-    container_name: tennis-notification-service
-    environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
+  # notification-service:
+  #   build:
+  #     context: ./notification-service
+  #     dockerfile: Dockerfile
+  #   container_name: tennis-notification-service
+  #   environment:
+  #     RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+  #   depends_on:
+  #     rabbitmq:
+  #       condition: service_healthy
 
 volumes:
   postgres_data:
-  rabbitmq_data:
+  # rabbitmq_data:

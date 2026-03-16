@@ -1,16 +1,14 @@
-FROM python:3.12-slim
+FROM python:3.14-slim
 
 WORKDIR /app
 
-# Copy dependency manifests
-COPY requirements.txt ./
+RUN pip install poetry && poetry config virtualenvs.create false
 
-# Install dependencies
-RUN pip install --no-cache-dir -r requirements.txt
+COPY pyproject.toml poetry.lock ./
+RUN poetry install --no-root --no-interaction
 
-# Copy source code
 COPY . .
 
-EXPOSE 8000
+ENV PYTHONPATH=/app/src
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["sh", "-c", "uvicorn court_service.main:app --host 0.0.0.0 --port ${APP_PORT}"]

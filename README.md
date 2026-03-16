@@ -39,14 +39,25 @@ A microservices-based system for managing tennis court reservations, built with 
 
 ## Services
 
-| Service                | Language / Framework          | Interface        | Database   |
-|------------------------|-------------------------------|------------------|------------|
-| **web-client**         | TypeScript (Next.js / React)  | UI               | —          |
-| **api-gateway**        | TypeScript (Node.js / Express)| REST (Entry Point)| —         |
-| **user-service**       | C# (.NET 8 / gRPC Server)    | gRPC             | PostgreSQL |
-| **court-service**      | Python (FastAPI)              | REST             | PostgreSQL |
-| **reservation-service**| TypeScript (Bun / ElysiaJS)   | REST + gRPC Client| PostgreSQL|
-| **notification-service**| TypeScript (Node.js / amqplib)| RabbitMQ Consumer| —         |
+| Service                 | Language / Framework          | Interface         | Database   |
+|-------------------------|-------------------------------|-------------------|------------|
+| **web-client**          | TypeScript (Next.js / React)  | UI                | —          |
+| **api-gateway**         | TypeScript (Node.js / Express)| REST (Entry Point)| —          |
+| **user-service**        | C# (.NET 8 / gRPC Server)     | gRPC              | PostgreSQL |
+| **court-service**       | Python (FastAPI)              | REST              | PostgreSQL |
+| **reservation-service** | TypeScript (Bun / ElysiaJS)   | REST + gRPC Client| PostgreSQL |
+| **notification-service**| TypeScript (Node.js / amqplib)| RabbitMQ Consumer | —          |
+
+## Ports
+
+| Service                 | Port | Docs |
+|-------------------------|------|------|
+| **web-client**          | 2000 | — |
+| **api-gateway**         | 2001 | — |
+| **user-service**        | 2002 | — |
+| **court-service**       | 2003 | [localhost:2003/docs](http://localhost:2003/docs) |
+| **reservation-service** | 2004 | — |
+| **notification-service** | —   | — |
 
 ## Repository Structure
 
