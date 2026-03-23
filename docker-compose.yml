@@ -70,23 +70,38 @@ services:
   #     - court-service
   #     - reservation-service
 
-  # user-service:
-  #   build:
-  #     context: ./user-service
-  #     dockerfile: Dockerfile
-  #   container_name: tennis-user-service
-  #   ports:
-  #     - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
-  #   environment:
-  #     DATABASE_HOST: postgres
-  #     DATABASE_PORT: 5432
-  #     DATABASE_NAME: users_db
-  #     DATABASE_USER: ${POSTGRES_USER}
-  #     DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
-  #     GRPC_PORT: ${USER_SERVICE_PORT}
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
+  user-service:
+    build:
+      context: .
+      dockerfile: user-service/Dockerfile
+    container_name: tennis-user-service
+    ports:
+      - "${USER_SERVICE_PORT}:${USER_SERVICE_PORT}"
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: users_db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      GRPC_PORT: ${USER_SERVICE_PORT}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:5050/health || exit 1"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  grpcui:
+    image: fullstorydev/grpcui:latest
+    container_name: tennis-grpcui
+    ports:
+      - "2005:2005"
+    command: ["-plaintext", "-bind", "0.0.0.0", "-port", "2005", "user-service:${USER_SERVICE_PORT}"]
+    depends_on:
+      user-service:
+        condition: service_healthy
 
   court-service:
     build:

@@ -19,7 +19,7 @@ A microservices-based system for managing tennis court reservations, built with 
               │                    │                       │
     ┌─────────▼────────┐   ┌───────▼──────────┐  ┌─────────▼───────────┐
     │   user-service   │   │  court-service   │  │ reservation-service │
-    │  (C# / .NET 8)   │   │ (Python/FastAPI) │  │  (Bun / ElysiaJS)   │
+    │  (C# / .NET 9)   │   │ (Python/FastAPI) │  │  (Bun / ElysiaJS)   │
     │   gRPC Server    │   │    REST API      │  │  REST + gRPC Client │
     └─────────┬────────┘   └───────┬──────────┘  └───┬────────────┬────┘
               │                    │                 │            │
@@ -43,7 +43,7 @@ A microservices-based system for managing tennis court reservations, built with 
 |-------------------------|-------------------------------|-------------------|------------|
 | **web-client**          | TypeScript (Next.js / React)  | UI                | —          |
 | **api-gateway**         | TypeScript (Node.js / Express)| REST (Entry Point)| —          |
-| **user-service**        | C# (.NET 8 / gRPC Server)     | gRPC              | PostgreSQL |
+| **user-service**        | C# (.NET 9 / gRPC Server)     | gRPC              | PostgreSQL |
 | **court-service**       | Python (FastAPI)              | REST              | PostgreSQL |
 | **reservation-service** | TypeScript (Bun / ElysiaJS)   | REST + gRPC Client| PostgreSQL |
 | **notification-service**| TypeScript (Node.js / amqplib)| RabbitMQ Consumer | —          |
@@ -58,6 +58,7 @@ A microservices-based system for managing tennis court reservations, built with 
 | **court-service**       | 2003 | [localhost:2003/docs](http://localhost:2003/docs) |
 | **reservation-service** | 2004 | — |
 | **notification-service** | —   | — |
+| **grpcui**              | 2005 | [localhost:2005](http://localhost:2005) |
 
 ## Repository Structure
 
