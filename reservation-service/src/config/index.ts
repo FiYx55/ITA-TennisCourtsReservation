@@ -11,6 +11,7 @@ export const config = {
   },
   userServiceGrpcUrl: process.env.USER_SERVICE_GRPC_URL ?? "localhost:2002",
   rabbitmqUrl: process.env.RABBITMQ_URL ?? "amqp://guest:guest@localhost:5672",
+  notificationServiceUrl: process.env.NOTIFICATION_SERVICE_URL ?? "http://localhost:2006",
 } as const;
 
 export function getDatabaseUrl(): string {

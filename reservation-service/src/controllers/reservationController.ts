@@ -2,6 +2,7 @@ import { Elysia, t } from "elysia";
 import { eq } from "drizzle-orm";
 import { db, schema } from "../db";
 import { getUser } from "../grpc/userClient";
+import { config } from "../config";
 
 const { reservations } = schema;
 
@@ -77,6 +78,18 @@ export const reservationController = new Elysia({ prefix: "/reservations" })
           totalPrice: body.totalPrice,
         })
         .returning();
+
+      // Notify the notification service (fire-and-forget)
+      fetch(`${config.notificationServiceUrl}/notifications`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: body.userId,
+          type: "reservation_confirmed",
+          title: "Reservation Confirmed",
+          message: `Your court has been booked from ${body.startTime} to ${body.endTime}.`,
+        }),
+      }).catch((err) => console.error("Failed to send notification:", err));
 
       set.status = 201;
       return reservation;

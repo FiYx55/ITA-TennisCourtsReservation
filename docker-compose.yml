@@ -137,6 +137,7 @@ services:
       APP_PORT: ${RESERVATION_SERVICE_PORT}
       USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
       RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+      NOTIFICATION_SERVICE_URL: http://notification-service:${NOTIFICATION_SERVICE_PORT}
     depends_on:
       postgres:
         condition: service_healthy
