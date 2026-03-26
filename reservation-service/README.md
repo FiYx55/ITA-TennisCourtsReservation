@@ -1,6 +1,6 @@
 # Reservation Service
 
-Handles the booking logic, linking users to courts with time slots.
+Manages the booking logic, linking users to courts with time slots.
 
 ## Technology
 
