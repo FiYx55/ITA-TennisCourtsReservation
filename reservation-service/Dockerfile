@@ -2,15 +2,20 @@ FROM oven/bun:1-alpine
 
 WORKDIR /app
 
+# Copy proto file (needed for gRPC client)
+COPY proto/user.proto proto/user.proto
+
 # Copy dependency manifests
-COPY package.json bun.lockb* ./
+COPY reservation-service/package.json reservation-service/bun.lock* ./reservation-service/
 
 # Install dependencies
+WORKDIR /app/reservation-service
 RUN bun install
 
 # Copy source code
-COPY . .
+COPY reservation-service/ .
 
-EXPOSE 3001
+# Run migration then start
+EXPOSE 2004
 
-CMD ["bun", "run", "src/index.ts"]
+CMD ["sh", "-c", "bun run migrate && bun run start"]

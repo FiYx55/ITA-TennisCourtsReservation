@@ -121,27 +121,27 @@ services:
       postgres:
         condition: service_healthy
 
-  # reservation-service:
-  #   build:
-  #     context: ./reservation-service
-  #     dockerfile: Dockerfile
-  #   container_name: tennis-reservation-service
-  #   ports:
-  #     - "${RESERVATION_SERVICE_PORT}:${RESERVATION_SERVICE_PORT}"
-  #   environment:
-  #     DATABASE_HOST: postgres
-  #     DATABASE_PORT: 5432
-  #     DATABASE_NAME: reservations_db
-  #     DATABASE_USER: ${POSTGRES_USER}
-  #     DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
-  #     APP_PORT: ${RESERVATION_SERVICE_PORT}
-  #     USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
-  #     RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
-  #   depends_on:
-  #     postgres:
-  #       condition: service_healthy
-  #     rabbitmq:
-  #       condition: service_healthy
+  reservation-service:
+    build:
+      context: .
+      dockerfile: reservation-service/Dockerfile
+    container_name: tennis-reservation-service
+    ports:
+      - "${RESERVATION_SERVICE_PORT}:${RESERVATION_SERVICE_PORT}"
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: reservations_db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_PORT: ${RESERVATION_SERVICE_PORT}
+      USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
 
   # notification-service:
   #   build:
