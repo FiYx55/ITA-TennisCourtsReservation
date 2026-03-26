@@ -57,7 +57,7 @@ A microservices-based system for managing tennis court reservations, built with 
 | **user-service**        | 2002 | — |
 | **court-service**       | 2003 | [localhost:2003/docs](http://localhost:2003/docs) |
 | **reservation-service** | 2004 | — |
-| **notification-service** | —   | — |
+| **notification-service** | 2006 | [localhost:2006/docs](http://localhost:2006/docs) |
 | **grpcui**              | 2005 | [localhost:2005](http://localhost:2005) |
 
 ## Repository Structure

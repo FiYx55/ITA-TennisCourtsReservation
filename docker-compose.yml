@@ -21,23 +21,23 @@ services:
       timeout: 5s
       retries: 5
 
-  # rabbitmq:
-  #   image: rabbitmq:3-management-alpine
-  #   container_name: tennis-rabbitmq
-  #   restart: unless-stopped
-  #   environment:
-  #     RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
-  #     RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
-  #   ports:
-  #     - "5672:5672"     # AMQP protocol
-  #     - "15672:15672"   # Management UI
-  #   volumes:
-  #     - rabbitmq_data:/var/lib/rabbitmq
-  #   healthcheck:
-  #     test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
-  #     interval: 10s
-  #     timeout: 5s
-  #     retries: 5
+  rabbitmq:
+    image: rabbitmq:3-management-alpine
+    container_name: tennis-rabbitmq
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD}
+    ports:
+      - "5672:5672"     # AMQP protocol
+      - "15672:15672"   # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
   # ──────────────────────────────────────────────
   # Application Services
@@ -143,17 +143,27 @@ services:
       user-service:
         condition: service_healthy
 
-  # notification-service:
-  #   build:
-  #     context: ./notification-service
-  #     dockerfile: Dockerfile
-  #   container_name: tennis-notification-service
-  #   environment:
-  #     RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
-  #   depends_on:
-  #     rabbitmq:
-  #       condition: service_healthy
+  notification-service:
+    build:
+      context: ./notification-service
+      dockerfile: Dockerfile
+    container_name: tennis-notification-service
+    ports:
+      - "${NOTIFICATION_SERVICE_PORT}:${NOTIFICATION_SERVICE_PORT}"
+    environment:
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DATABASE_NAME: notifications_db
+      DATABASE_USER: ${POSTGRES_USER}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      APP_PORT: ${NOTIFICATION_SERVICE_PORT}
+      RABBITMQ_URL: amqp://${RABBITMQ_USER}:${RABBITMQ_PASSWORD}@rabbitmq:5672
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
 
 volumes:
   postgres_data:
-  # rabbitmq_data:
+  rabbitmq_data:
