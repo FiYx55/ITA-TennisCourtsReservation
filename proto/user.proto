@@ -62,4 +62,5 @@ message UserResponse {
   string last_name = 4;
   string created_at = 5;
   bool is_active = 6;
+  string role = 7;
 }

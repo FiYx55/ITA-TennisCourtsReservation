@@ -27,6 +27,7 @@ export interface UserResult {
   lastName: string;
   createdAt: string;
   isActive: boolean;
+  role: string;
 }
 
 export interface VerifyUserResult {

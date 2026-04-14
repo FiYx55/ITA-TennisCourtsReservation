@@ -174,6 +174,7 @@ public class UserGrpcService : UserGrpc.UserGrpcBase
         FirstName = user.FirstName,
         LastName = user.LastName,
         CreatedAt = user.CreatedAt.ToString("o"),
-        IsActive = user.IsActive
+        IsActive = user.IsActive,
+        Role = user.Role
     };
 }

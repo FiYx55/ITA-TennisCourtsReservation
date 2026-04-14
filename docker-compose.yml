@@ -43,15 +43,20 @@ services:
   # Application Services
   # ──────────────────────────────────────────────
 
-  # web-client:
-  #   build:
-  #     context: ./web-client
-  #     dockerfile: Dockerfile
-  #   container_name: tennis-web-client
-  #   ports:
-  #     - "${WEB_CLIENT_PORT}:${WEB_CLIENT_PORT}"
-  #   depends_on:
-  #     - api-gateway
+  web-client:
+    build:
+      context: ./web-client
+      dockerfile: Dockerfile
+      args:
+        NEXT_PUBLIC_API_URL: http://localhost:${API_GATEWAY_PORT}/api
+    container_name: tennis-web-client
+    ports:
+      - "${WEB_CLIENT_PORT}:${WEB_CLIENT_PORT}"
+    environment:
+      PORT: ${WEB_CLIENT_PORT}
+      NEXT_PUBLIC_API_URL: http://localhost:${API_GATEWAY_PORT}/api
+    depends_on:
+      - api-gateway
 
   api-gateway:
     build:

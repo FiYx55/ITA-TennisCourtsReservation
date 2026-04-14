@@ -12,6 +12,7 @@ async function register(req: Request, res: Response) {
       email: user.email,
       firstName: user.firstName,
       lastName: user.lastName,
+      role: user.role,
     });
   } catch (err: any) {
     res.status(400).json({ error: err?.details || 'Registration failed' });
@@ -34,6 +35,7 @@ async function login(req: Request, res: Response) {
       firstName: user.firstName,
       lastName: user.lastName,
       createdAt: user.createdAt,
+      role: user.role,
     });
   } catch (err: any) {
     res.status(401).json({ error: err?.details || 'Login failed' });
