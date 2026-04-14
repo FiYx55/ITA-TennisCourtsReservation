@@ -2,7 +2,9 @@ import path from 'path';
 import dotenv from 'dotenv';
 import { defineConfig } from 'vitest/config';
 
-dotenv.config({ path: 'config/.env.test' });
+// Load env from config/.env.test for local development.
+// In CI, env vars are set directly in the workflow.
+dotenv.config({ path: 'config/.env.test', override: false });
 
 const config = defineConfig({
   test: {

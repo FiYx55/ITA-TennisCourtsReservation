@@ -31,3 +31,10 @@ jobs:
 
       - name: Run tests
         run: npx vitest run
+        env:
+          NODE_ENV: test
+          PORT: 2001
+          USER_SERVICE_GRPC_URL: localhost:2002
+          COURT_SERVICE_URL: http://localhost:2003
+          RESERVATION_SERVICE_URL: http://localhost:2004
+          NOTIFICATION_SERVICE_URL: http://localhost:2006
