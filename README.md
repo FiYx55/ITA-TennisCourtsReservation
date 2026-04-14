@@ -56,7 +56,7 @@ A microservices-based system for managing tennis court reservations, built with 
 | **api-gateway**         | 2001 | — |
 | **user-service**        | 2002 | — |
 | **court-service**       | 2003 | [localhost:2003/docs](http://localhost:2003/docs) |
-| **reservation-service** | 2004 | — |
+| **reservation-service** | 2004 | [localhost:2004/swagger](http://localhost:2004/swagger) |
 | **notification-service** | 2006 | [localhost:2006/docs](http://localhost:2006/docs) |
 | **grpcui**              | 2005 | [localhost:2005](http://localhost:2005) |
 
@@ -94,3 +94,7 @@ docker compose up -d
 ```
 
 This starts PostgreSQL (with three databases) and RabbitMQ.
+
+
+For exercise about gateways we need to make two, once for web client and once for mobile client, since sometimes mobile client has less capabilites.
+We wont actually be developing a mobile client but we will have a separate gateway for it, which will be more limited in functionality and will only expose a subset of the API. For example new courts will only be creatable through the web gateway, while the mobile gateway will only allow users to view courts and make reservations. Perhaps the web gateway also has admin endpoints for managing users and courts, while the mobile gateway is focused on user-facing features. 
