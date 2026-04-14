@@ -16,7 +16,7 @@ Run the server in development with hot reloading and browser refresh (see `packa
 
 ### `npm test`
 
-Run unit-tests with <a href="https://vitest.dev/guide/">vitest</a>.
+Run unit tests with <a href="https://vitest.dev/guide/">vitest</a>.
 
 ### `npm run lint`
 
