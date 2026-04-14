@@ -48,7 +48,7 @@ A microservices-based system for managing tennis court reservations, built with 
 | Service                  | Port | Docs |
 |--------------------------|------|------|
 | **web-client**           | 2000 | — |
-| **api-gateway**          | 2001 | — |
+| **api-gateway**          | 2001 | [localhost:2001/docs](http://localhost:2001/docs) |
 | **api-gateway-mobile**   | 2007 | [localhost:2007/docs](http://localhost:2007/docs) |
 | **user-service**         | 2002 | — |
 | **court-service**        | 2003 | [localhost:2003/docs](http://localhost:2003/docs) |

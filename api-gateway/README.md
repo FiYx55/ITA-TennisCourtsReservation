@@ -1,39 +1,39 @@
-# API Gateway
+## About
 
-Central entry point that routes requests to internal microservices.
+This project was created with [express-generator-typescript](https://github.com/seanpmaxwell/express-generator-typescript).
 
-## Technology
+## Available Scripts
 
-- **Language**: TypeScript
-- **Runtime**: Node.js
-- **Framework**: Express
-- **Interface**: REST (inbound), gRPC + REST (outbound to services)
+### `npm run clean-install`
 
-## Description
+Remove the existing `node_modules/` folder, `package-lock.json`, and reinstall all library modules.
 
-The API Gateway is the single entry point for all client requests. It routes HTTP/REST calls to the appropriate internal services:
+### `npm run dev` 
 
-- **user-service** → via gRPC
-- **court-service** → via REST
-- **reservation-service** → via REST
+Run the server in development with hot reloading and browser refresh (see `package.json` for all `npm run dev` variations)<br/>
 
-## Environment Variables
+**IMPORTANT** development mode uses `swc` for performance reasons which DOES NOT check for typescript errors. Run `npm run type-check` to check for type errors. NOTE: you should use your IDE to prevent most type errors.
 
-| Variable                  | Description                        | Default                          |
-|---------------------------|------------------------------------|----------------------------------|
-| `PORT`                    | Gateway listen port                | `4000`                           |
-| `USER_SERVICE_GRPC_URL`   | gRPC address of user-service       | `user-service:50051`             |
-| `COURT_SERVICE_URL`       | HTTP address of court-service      | `http://court-service:8000`      |
-| `RESERVATION_SERVICE_URL` | HTTP address of reservation-service| `http://reservation-service:3001`|
+### `npm test`
 
-## Ports
+Run unit-tests with <a href="https://vitest.dev/guide/">vitest</a>.
 
-| Port | Description |
-|------|-------------|
-| 4000 | HTTP REST   |
+### `npm run lint`
 
-## Running with Docker
+Check for linting errors.
 
-```bash
-docker compose up api-gateway
-```
+### `npm run build`
+
+Build the project for production.
+
+### `npm start`
+
+Run the production build (Must be built first).
+
+### `npm run type-check`
+
+Check for typescript errors.
+
+## Additional Notes
+
+- If `npm run dev` gives you issues with bcrypt on MacOS you may need to run: `npm rebuild bcrypt --build-from-source`.

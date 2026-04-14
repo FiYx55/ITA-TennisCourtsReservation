@@ -53,22 +53,25 @@ services:
   #   depends_on:
   #     - api-gateway
 
-  # api-gateway:
-  #   build:
-  #     context: ./api-gateway
-  #     dockerfile: Dockerfile
-  #   container_name: tennis-gateway
-  #   ports:
-  #     - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
-  #   environment:
-  #     PORT: ${API_GATEWAY_PORT}
-  #     USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
-  #     COURT_SERVICE_URL: http://court-service:${COURT_SERVICE_PORT}
-  #     RESERVATION_SERVICE_URL: http://reservation-service:${RESERVATION_SERVICE_PORT}
-  #   depends_on:
-  #     - user-service
-  #     - court-service
-  #     - reservation-service
+  api-gateway:
+    build:
+      context: .
+      dockerfile: api-gateway/Dockerfile
+    container_name: tennis-gateway
+    ports:
+      - "${API_GATEWAY_PORT}:${API_GATEWAY_PORT}"
+    environment:
+      NODE_ENV: production
+      PORT: ${API_GATEWAY_PORT}
+      USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
+      COURT_SERVICE_URL: http://court-service:${COURT_SERVICE_PORT}
+      RESERVATION_SERVICE_URL: http://reservation-service:${RESERVATION_SERVICE_PORT}
+      NOTIFICATION_SERVICE_URL: http://notification-service:${NOTIFICATION_SERVICE_PORT}
+    depends_on:
+      - user-service
+      - court-service
+      - reservation-service
+      - notification-service
 
   user-service:
     build:
