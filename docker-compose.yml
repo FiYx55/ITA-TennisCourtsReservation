@@ -144,6 +144,25 @@ services:
       user-service:
         condition: service_healthy
 
+  api-gateway-mobile:
+    build:
+      context: .
+      dockerfile: api-gateway-mobile/Dockerfile
+    container_name: tennis-gateway-mobile
+    ports:
+      - "${API_GATEWAY_MOBILE_PORT}:${API_GATEWAY_MOBILE_PORT}"
+    environment:
+      PORT: ${API_GATEWAY_MOBILE_PORT}
+      USER_SERVICE_GRPC_URL: user-service:${USER_SERVICE_PORT}
+      COURT_SERVICE_URL: http://court-service:${COURT_SERVICE_PORT}
+      RESERVATION_SERVICE_URL: http://reservation-service:${RESERVATION_SERVICE_PORT}
+      NOTIFICATION_SERVICE_URL: http://notification-service:${NOTIFICATION_SERVICE_PORT}
+    depends_on:
+      - user-service
+      - court-service
+      - reservation-service
+      - notification-service
+
   notification-service:
     build:
       context: ./notification-service
