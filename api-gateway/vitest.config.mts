@@ -1,15 +1,15 @@
 import path from 'path';
+import dotenv from 'dotenv';
 import { defineConfig } from 'vitest/config';
+
+dotenv.config({ path: 'config/.env.test' });
 
 const config = defineConfig({
   test: {
     globals: true,
     environment: 'node',
-    setupFiles: ['dotenv/config', './tests/support/agent.ts'],
+    setupFiles: ['./tests/support/agent.ts'],
     isolate: true,
-    env: {
-      DOTENV_CONFIG_PATH: 'config/.env.test',
-    },
   },
   resolve: {
     alias: {

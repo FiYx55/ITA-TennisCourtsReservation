@@ -30,4 +30,4 @@ jobs:
         run: npm run build
 
       - name: Run tests
-        run: npx cross-env DOTENV_CONFIG_PATH=./config/.env.test npx vitest run
+        run: npx vitest run

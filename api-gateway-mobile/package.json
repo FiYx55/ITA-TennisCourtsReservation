@@ -7,7 +7,7 @@
     "test": "test"
   },
   "scripts": {
-    "test": "npm run build:ts && tsc -p test/tsconfig.json && c8 node --test -r ts-node/register \"test/**/*.ts\"",
+    "test": "npm run build:ts && tsc -p test/tsconfig.json && c8 node --test -r ts-node/register test/helper.ts test/routes/root.test.ts",
     "start": "npm run build:ts && fastify start -l info -a 0.0.0.0 -p ${PORT:-2007} dist/app.js",
     "start:prod": "fastify start -l info -a 0.0.0.0 -p ${PORT:-2007} dist/app.js",
     "build:ts": "tsc",
