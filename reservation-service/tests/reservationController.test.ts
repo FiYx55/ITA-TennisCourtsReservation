@@ -30,14 +30,29 @@ function makeId() {
 
 // Mock the db module
 mock.module("../src/db", () => {
-  const { eq } = require("drizzle-orm");
   return {
     db: {
       select: () => ({
         from: (_table: any) => ({
           where: (condition: any) => {
-            // Filter store based on the condition
             return store.filter((r) => {
+              // Handle drizzle-orm `and()` composite conditions
+              if (condition?.operator === "and") {
+                return condition.conditions.every((c: any) => {
+                  if (c?.left?.name === "id") return r.id === c.right;
+                  if (c?.left?.name === "user_id") return r.userId === c.right;
+                  if (c?.left?.name === "court_id") return r.courtId === c.right;
+                  if (c?.left?.name === "status") return r.status === c.right;
+                  if (c?.left?.name === "start_time") {
+                    const val = c.right instanceof Date ? c.right.getTime() : new Date(c.right).getTime();
+                    const rVal = r.startTime instanceof Date ? r.startTime.getTime() : new Date(r.startTime).getTime();
+                    if (c.operator === "gte") return rVal >= val;
+                    if (c.operator === "lt") return rVal < val;
+                    return rVal === val;
+                  }
+                  return true;
+                });
+              }
               if (condition?.left?.name === "id") return r.id === condition.right;
               if (condition?.left?.name === "user_id") return r.userId === condition.right;
               return true;
@@ -83,6 +98,8 @@ mock.module("../src/db", () => {
         id: { name: "id" },
         userId: { name: "user_id" },
         courtId: { name: "court_id" },
+        startTime: { name: "start_time" },
+        status: { name: "status" },
       },
     },
   };
@@ -97,7 +114,6 @@ const RESERVATION_DATA = {
   userId: "00000000-0000-0000-0000-000000000001",
   courtId: "00000000-0000-0000-0000-000000000099",
   startTime: "2026-04-01T10:00:00Z",
-  endTime: "2026-04-01T11:00:00Z",
   totalPrice: "25.00",
 };
 
@@ -119,7 +135,7 @@ describe("Reservation Controller", () => {
     expect(await res.json()).toEqual([]);
   });
 
-  it("POST /reservations creates a reservation", async () => {
+  it("POST /reservations creates a reservation with computed endTime", async () => {
     const res = await app.handle(
       new Request("http://localhost/reservations", {
         method: "POST",
@@ -128,26 +144,46 @@ describe("Reservation Controller", () => {
       })
     );
     expect(res.status).toBe(201);
-    const data = await res.json();
+    const data = await res.json() as any;
     expect(data.userId).toBe(RESERVATION_DATA.userId);
     expect(data.courtId).toBe(RESERVATION_DATA.courtId);
     expect(data.status).toBe("confirmed");
+    // endTime should be startTime + 1 hour
+    const start = new Date(data.startTime);
+    const end = new Date(data.endTime);
+    expect(end.getTime() - start.getTime()).toBe(60 * 60 * 1000);
   });
 
-  it("POST /reservations rejects invalid time range", async () => {
+  it("POST /reservations rejects non-full-hour startTime", async () => {
     const res = await app.handle(
       new Request("http://localhost/reservations", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           ...RESERVATION_DATA,
-          endTime: "2026-04-01T09:00:00Z", // before start
+          startTime: "2026-04-01T10:30:00Z",
         }),
       })
     );
     expect(res.status).toBe(400);
-    const data = await res.json();
-    expect(data.error).toContain("End time");
+    const data = await res.json() as any;
+    expect(data.error).toContain("full hour");
+  });
+
+  it("POST /reservations rejects time outside operating hours", async () => {
+    const res = await app.handle(
+      new Request("http://localhost/reservations", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...RESERVATION_DATA,
+          startTime: "2026-04-01T05:00:00Z",
+        }),
+      })
+    );
+    expect(res.status).toBe(400);
+    const data = await res.json() as any;
+    expect(data.error).toContain("available between");
   });
 
   it("GET /reservations/:id returns 404 for missing", async () => {
