@@ -3,10 +3,10 @@ import express, { NextFunction, Request, Response } from 'express';
 import helmet from 'helmet';
 import logger from 'jet-logger';
 import morgan from 'morgan';
-import swaggerJSDoc from 'swagger-jsdoc';
 import swaggerUi from 'swagger-ui-express';
 
 import Paths from '@src/common/constants/Paths';
+import { swaggerSpec } from '@src/common/swagger';
 import { RouteError } from '@src/common/utils/route-errors';
 import BaseRouter from '@src/routes/apiRouter';
 
@@ -29,18 +29,6 @@ if (EnvVars.NodeEnv === NodeEnvs.PRODUCTION) {
 }
 
 // **** Swagger **** //
-
-const swaggerSpec = swaggerJSDoc({
-  definition: {
-    openapi: '3.0.0',
-    info: {
-      title: 'Tennis Courts - Web API Gateway',
-      description: 'Web API gateway with full admin and user features for the Tennis Court Reservation system.',
-      version: '1.0.0',
-    },
-  },
-  apis: [], // We use programmatic routes, not JSDoc annotations
-});
 
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 
