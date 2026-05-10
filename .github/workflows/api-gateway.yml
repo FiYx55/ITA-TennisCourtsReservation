@@ -38,3 +38,5 @@ jobs:
           COURT_SERVICE_URL: http://localhost:2003
           RESERVATION_SERVICE_URL: http://localhost:2004
           NOTIFICATION_SERVICE_URL: http://localhost:2006
+          JWT_SECRET: test-secret
+          JWT_EXPIRES_IN: 1d
