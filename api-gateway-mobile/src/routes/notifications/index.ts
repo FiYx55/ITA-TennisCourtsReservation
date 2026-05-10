@@ -6,6 +6,7 @@ const notifications: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     '/:userId',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Notifications'],
         summary: 'Get all notifications for a user',
@@ -28,6 +29,7 @@ const notifications: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     '/:userId/unread/count',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Notifications'],
         summary: 'Get unread notification count',
@@ -52,6 +54,7 @@ const notifications: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.patch(
     '/:id/read',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Notifications'],
         summary: 'Mark a notification as read',

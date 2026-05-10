@@ -8,6 +8,7 @@ const dashboard: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     '/:userId',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Dashboard'],
         summary: 'Mobile home screen — profile, upcoming reservations, unread count',

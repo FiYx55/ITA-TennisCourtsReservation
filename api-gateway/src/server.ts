@@ -5,6 +5,7 @@ import logger from 'jet-logger';
 import morgan from 'morgan';
 import swaggerUi from 'swagger-ui-express';
 
+import { getBreakerSnapshots } from '@src/common/breaker';
 import Paths from '@src/common/constants/Paths';
 import { swaggerSpec } from '@src/common/swagger';
 import { RouteError } from '@src/common/utils/route-errors';
@@ -38,18 +39,37 @@ app.get(Paths.Health, (_: Request, res: Response) => {
   res.json({ status: 'ok' });
 });
 
+// Circuit-breaker observability — see open/closed state and stats per downstream
+app.get('/breaker-status', (_: Request, res: Response) => {
+  res.json(getBreakerSnapshots());
+});
+
 // **** API routes **** //
 
 app.use(Paths._, BaseRouter);
 
 // **** Error handler **** //
 
-app.use((err: Error, _: Request, res: Response, next: NextFunction) => {
+app.use((err: any, _: Request, res: Response, next: NextFunction) => {
   if (EnvVars.NodeEnv !== NodeEnvs.TEST.valueOf()) {
     logger.err(err, true);
   }
   if (err instanceof RouteError) {
     res.status(err.status).json({ error: err.message });
+    return;
+  }
+  // opossum signals: breaker open or downstream timeout — fail fast with 503
+  if (err?.code === 'EOPENBREAKER') {
+    res.status(503).json({ error: 'Downstream temporarily unavailable (circuit open)' });
+    return;
+  }
+  if (err?.code === 'ETIMEDOUT') {
+    res.status(504).json({ error: 'Downstream timed out' });
+    return;
+  }
+  if (err?.code === 'DOWNSTREAM') {
+    res.status(502).json({ error: err.message || 'Downstream error' });
+    return;
   }
   return next(err);
 });

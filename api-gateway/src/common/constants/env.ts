@@ -14,6 +14,8 @@ const EnvVars = jetEnv({
   CourtServiceUrl: str,
   ReservationServiceUrl: str,
   NotificationServiceUrl: str,
+  JwtSecret: str,
+  JwtExpiresIn: str,
 });
 
 export default EnvVars;

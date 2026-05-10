@@ -72,6 +72,8 @@ services:
       COURT_SERVICE_URL: http://court-service:${COURT_SERVICE_PORT}
       RESERVATION_SERVICE_URL: http://reservation-service:${RESERVATION_SERVICE_PORT}
       NOTIFICATION_SERVICE_URL: http://notification-service:${NOTIFICATION_SERVICE_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
     depends_on:
       - user-service
       - court-service
@@ -165,6 +167,8 @@ services:
       COURT_SERVICE_URL: http://court-service:${COURT_SERVICE_PORT}
       RESERVATION_SERVICE_URL: http://reservation-service:${RESERVATION_SERVICE_PORT}
       NOTIFICATION_SERVICE_URL: http://notification-service:${NOTIFICATION_SERVICE_PORT}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN}
     depends_on:
       - user-service
       - court-service

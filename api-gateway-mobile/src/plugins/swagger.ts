@@ -10,10 +10,23 @@ export default fp(async (fastify) => {
         description: 'Mobile API gateway exposing a limited subset of the Tennis Court Reservation API. Focused on user-facing features: viewing courts, managing reservations, and notifications.',
         version: '1.0.0',
       },
+      components: {
+        securitySchemes: {
+          bearerAuth: {
+            type: 'http',
+            scheme: 'bearer',
+            bearerFormat: 'JWT',
+            description: 'JWT issued by /auth/login or /auth/register.',
+          },
+        },
+      },
+      security: [{ bearerAuth: [] }],
       tags: [
+        { name: 'Auth', description: 'Authentication and registration' },
         { name: 'Courts', description: 'Browse available tennis courts' },
         { name: 'Reservations', description: 'Create and manage reservations' },
         { name: 'Notifications', description: 'View and manage notifications' },
+        { name: 'Dashboard', description: 'Mobile home screen aggregate' },
         { name: 'Health', description: 'Service health check' },
       ],
     },

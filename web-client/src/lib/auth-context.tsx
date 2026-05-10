@@ -1,7 +1,7 @@
 "use client";
 
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from "react";
-import { api, ApiError } from "./api";
+import { api, ApiError, setAuthToken } from "./api";
 
 export interface User {
   id: string;
@@ -45,19 +45,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (email: string, password: string) => {
-    const data = await api.post<User>("/auth/login", { email, password });
-    setUser(data);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const data = await api.post<{ token: string; user: User }>("/auth/login", { email, password });
+    setAuthToken(data.token);
+    setUser(data.user);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
   }, []);
 
   const register = useCallback(async (email: string, firstName: string, lastName: string, password: string) => {
-    const data = await api.post<User>("/auth/register", { email, firstName, lastName, password });
-    setUser(data);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    const data = await api.post<{ token: string; user: User }>("/auth/register", { email, firstName, lastName, password });
+    setAuthToken(data.token);
+    setUser(data.user);
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data.user));
   }, []);
 
   const logout = useCallback(() => {
     setUser(null);
+    setAuthToken(null);
     localStorage.removeItem(STORAGE_KEY);
   }, []);
 

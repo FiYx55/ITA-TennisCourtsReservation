@@ -1,33 +1,30 @@
 import { Request, Response } from 'express';
 
-import EnvVars from '@src/common/constants/env';
+import { courtFetch, reservationFetch, userGrpcCall } from '@src/common/breaker';
 import { getUser } from '@src/grpc/userClient';
-
-const courtUrl = () => EnvVars.CourtServiceUrl;
-const reservationUrl = () => EnvVars.ReservationServiceUrl;
 
 async function enrichWithCourt(reservation: any): Promise<any> {
   try {
-    const r = await fetch(`${courtUrl()}/courts/${reservation.courtId}`);
+    const r = await courtFetch(`/courts/${reservation.courtId}`);
     if (r.ok) {
       const court = await r.json() as any;
       return { ...reservation, courtName: court.name, courtSurface: court.surface };
     }
-  } catch { /* best-effort */ }
+  } catch { /* best-effort: court-service down or breaker open */ }
   return reservation;
 }
 
 async function enrichWithUser(reservation: any): Promise<any> {
   try {
-    const user = await getUser({ id: reservation.userId });
+    const user = await userGrpcCall(() => getUser({ id: reservation.userId }));
     return { ...reservation, userName: `${user.firstName} ${user.lastName}` };
-  } catch { /* best-effort */ }
+  } catch { /* best-effort: user-service down or breaker open */ }
   return reservation;
 }
 
 // GET /reservations — admin: all reservations enriched with court + user names
 async function getAll(_req: Request, res: Response) {
-  const r = await fetch(`${reservationUrl()}/reservations`);
+  const r = await reservationFetch('/reservations');
   if (!r.ok) {
     res.status(r.status).json(await r.json());
     return;
@@ -41,7 +38,7 @@ async function getAll(_req: Request, res: Response) {
 
 // GET /reservations/:id — aggregated: reservation + court + user
 async function getOne(req: Request, res: Response) {
-  const r = await fetch(`${reservationUrl()}/reservations/${req.params.id}`);
+  const r = await reservationFetch(`/reservations/${req.params.id}`);
   if (r.status === 404) {
     res.status(404).json({ error: 'Reservation not found' });
     return;
@@ -54,7 +51,7 @@ async function getOne(req: Request, res: Response) {
 
 // GET /reservations/user/:userId — aggregated: user's reservations + court names
 async function byUser(req: Request, res: Response) {
-  const r = await fetch(`${reservationUrl()}/reservations/user/${req.params.userId}`);
+  const r = await reservationFetch(`/reservations/user/${req.params.userId}`);
   res.status(r.status);
   const items = await r.json() as any[];
   const enriched = await Promise.all(items.map(enrichWithCourt));
@@ -65,9 +62,7 @@ async function byUser(req: Request, res: Response) {
 async function available(req: Request, res: Response) {
   const { courtId } = req.params;
   const date = req.query.date as string;
-  const r = await fetch(
-    `${reservationUrl()}/reservations/court/${courtId}/available?date=${date}`,
-  );
+  const r = await reservationFetch(`/reservations/court/${courtId}/available?date=${date}`);
   res.status(r.status).json(await r.json());
 }
 
@@ -76,7 +71,7 @@ async function create(req: Request, res: Response) {
   const body = req.body;
 
   // Step 1: verify court exists
-  const courtRes = await fetch(`${courtUrl()}/courts/${body.courtId}`);
+  const courtRes = await courtFetch(`/courts/${body.courtId}`);
   if (!courtRes.ok) {
     res.status(404).json({ error: 'Court not found' });
     return;
@@ -84,7 +79,7 @@ async function create(req: Request, res: Response) {
   const court = await courtRes.json() as any;
 
   // Step 2: create reservation
-  const r = await fetch(`${reservationUrl()}/reservations`, {
+  const r = await reservationFetch('/reservations', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(body),
@@ -105,7 +100,7 @@ async function create(req: Request, res: Response) {
 
 // PUT /reservations/:id — admin: update reservation
 async function update(req: Request, res: Response) {
-  const r = await fetch(`${reservationUrl()}/reservations/${req.params.id}`, {
+  const r = await reservationFetch(`/reservations/${req.params.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req.body),
@@ -115,9 +110,7 @@ async function update(req: Request, res: Response) {
 
 // DELETE /reservations/:id — cancel reservation
 async function delete_(req: Request, res: Response) {
-  const r = await fetch(`${reservationUrl()}/reservations/${req.params.id}`, {
-    method: 'DELETE',
-  });
+  const r = await reservationFetch(`/reservations/${req.params.id}`, { method: 'DELETE' });
   res.status(r.status);
   if (r.status === 204) {
     res.end();

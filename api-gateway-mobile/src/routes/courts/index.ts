@@ -7,6 +7,7 @@ const courts: FastifyPluginAsync = async (fastify): Promise<void> => {
     '/',
     {
       schema: {
+        security: [],
         tags: ['Courts'],
         summary: 'List all courts',
       },
@@ -23,6 +24,7 @@ const courts: FastifyPluginAsync = async (fastify): Promise<void> => {
     '/:id',
     {
       schema: {
+        security: [],
         tags: ['Courts'],
         summary: 'Get court details with today\'s available slots',
         params: {

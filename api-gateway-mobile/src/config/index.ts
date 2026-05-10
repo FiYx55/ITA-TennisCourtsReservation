@@ -4,4 +4,6 @@ export const config = {
   courtServiceUrl: process.env.COURT_SERVICE_URL || 'http://localhost:2003',
   reservationServiceUrl: process.env.RESERVATION_SERVICE_URL || 'http://localhost:2004',
   notificationServiceUrl: process.env.NOTIFICATION_SERVICE_URL || 'http://localhost:2006',
+  jwtSecret: process.env.JWT_SECRET || 'dev-secret-change-me',
+  jwtExpiresIn: process.env.JWT_EXPIRES_IN || '1d',
 };

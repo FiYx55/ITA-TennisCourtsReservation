@@ -1,13 +1,10 @@
 import { Request, Response } from 'express';
 
-import EnvVars from '@src/common/constants/env';
-
-const courtUrl = () => EnvVars.CourtServiceUrl;
-const reservationUrl = () => EnvVars.ReservationServiceUrl;
+import { courtFetch, reservationFetch } from '@src/common/breaker';
 
 // GET /courts — list all courts
 async function getAll(_req: Request, res: Response) {
-  const r = await fetch(`${courtUrl()}/courts`);
+  const r = await courtFetch('/courts');
   res.status(r.status).json(await r.json());
 }
 
@@ -17,8 +14,8 @@ async function getOne(req: Request, res: Response) {
   const today = new Date().toISOString().split('T')[0];
 
   const [courtRes, slotsRes] = await Promise.all([
-    fetch(`${courtUrl()}/courts/${id}`),
-    fetch(`${reservationUrl()}/reservations/court/${id}/available?date=${today}`),
+    courtFetch(`/courts/${id}`),
+    reservationFetch(`/reservations/court/${id}/available?date=${today}`).catch(() => null),
   ]);
 
   if (courtRes.status === 404) {
@@ -27,14 +24,14 @@ async function getOne(req: Request, res: Response) {
   }
 
   const court = await courtRes.json();
-  const availability = slotsRes.ok ? await slotsRes.json() : { slots: [] };
+  const availability = slotsRes?.ok ? await slotsRes.json() : { slots: [] };
 
   res.json({ ...court as object, availability: (availability as any).slots });
 }
 
 // POST /courts — create court (admin)
 async function create(req: Request, res: Response) {
-  const r = await fetch(`${courtUrl()}/courts`, {
+  const r = await courtFetch('/courts', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req.body),
@@ -44,7 +41,7 @@ async function create(req: Request, res: Response) {
 
 // PUT /courts/:id — update court (admin)
 async function update(req: Request, res: Response) {
-  const r = await fetch(`${courtUrl()}/courts/${req.params.id}`, {
+  const r = await courtFetch(`/courts/${req.params.id}`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(req.body),
@@ -54,9 +51,7 @@ async function update(req: Request, res: Response) {
 
 // DELETE /courts/:id — delete court (admin)
 async function delete_(req: Request, res: Response) {
-  const r = await fetch(`${courtUrl()}/courts/${req.params.id}`, {
-    method: 'DELETE',
-  });
+  const r = await courtFetch(`/courts/${req.params.id}`, { method: 'DELETE' });
   res.status(r.status).end();
 }
 

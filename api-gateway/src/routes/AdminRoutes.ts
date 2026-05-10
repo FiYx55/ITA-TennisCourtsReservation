@@ -1,23 +1,24 @@
 import { Request, Response } from 'express';
 
-import EnvVars from '@src/common/constants/env';
+import { courtFetch, reservationFetch, userGrpcCall } from '@src/common/breaker';
 import { getUsers } from '@src/grpc/userClient';
 
 // GET /admin/dashboard — aggregated admin overview:
-// user count + court count + today's reservation count
+// user count + court count + today's reservation count.
+// Each downstream call is independently breakered: if one is open we still
+// return a partial dashboard rather than failing the whole request.
 async function dashboard(_req: Request, res: Response) {
   const today = new Date().toISOString().split('T')[0];
 
   const [usersResult, courtsRes, reservationsRes] = await Promise.all([
-    getUsers({} as never).catch(() => ({ users: [] })),
-    fetch(`${EnvVars.CourtServiceUrl}/courts`).catch(() => null),
-    fetch(`${EnvVars.ReservationServiceUrl}/reservations`).catch(() => null),
+    userGrpcCall(() => getUsers({} as never)).catch(() => ({ users: [] })),
+    courtFetch('/courts').catch(() => null),
+    reservationFetch('/reservations').catch(() => null),
   ]);
 
   const courts = courtsRes?.ok ? (await courtsRes.json() as any[]) : [];
   const reservations = reservationsRes?.ok ? (await reservationsRes.json() as any[]) : [];
 
-  // Filter today's reservations
   const todaysReservations = reservations.filter((r: any) => {
     const start = new Date(r.startTime).toISOString().split('T')[0];
     return start === today;

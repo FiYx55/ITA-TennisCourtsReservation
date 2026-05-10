@@ -69,6 +69,18 @@ export const swaggerSpec = {
     version: '1.0.0',
   },
   servers: [{ url: '/api' }],
+  components: {
+    securitySchemes: {
+      bearerAuth: {
+        type: 'http',
+        scheme: 'bearer',
+        bearerFormat: 'JWT',
+        description: 'JWT issued by /auth/login or /auth/register. Paste the token value (without the "Bearer " prefix).',
+      },
+    },
+  },
+  // Default: every operation requires a bearer token. Public ones override with `security: []`.
+  security: [{ bearerAuth: [] }],
   tags: [
     { name: 'Auth', description: 'Authentication and registration' },
     { name: 'Users', description: 'User management (admin)' },
@@ -81,6 +93,7 @@ export const swaggerSpec = {
     '/auth/register': {
       post: {
         tags: ['Auth'],
+        security: [],
         summary: 'Register a new user',
         requestBody: {
           required: true,
@@ -108,6 +121,7 @@ export const swaggerSpec = {
     '/auth/login': {
       post: {
         tags: ['Auth'],
+        security: [],
         summary: 'Login (aggregates VerifyUser + GetUser via gRPC)',
         requestBody: {
           required: true,
@@ -177,6 +191,7 @@ export const swaggerSpec = {
     '/courts': {
       get: {
         tags: ['Courts'],
+        security: [],
         summary: 'List all courts',
         responses: { 200: { description: 'List of courts', content: { 'application/json': { schema: { type: 'array', items: courtSchema } } } } },
       },
@@ -206,6 +221,7 @@ export const swaggerSpec = {
     '/courts/{id}': {
       get: {
         tags: ['Courts'],
+        security: [],
         summary: 'Get court details + today\'s available slots (aggregated)',
         parameters: [uuidParam('id')],
         responses: { 200: { description: 'Court with availability' }, 404: { description: 'Not found' } },

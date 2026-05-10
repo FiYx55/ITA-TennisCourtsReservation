@@ -17,6 +17,7 @@ const reservations: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     '/:id',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Reservations'],
         summary: 'Get reservation enriched with court details',
@@ -45,6 +46,7 @@ const reservations: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     '/user/:userId',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Reservations'],
         summary: 'Get user\'s reservations enriched with court names',
@@ -70,6 +72,7 @@ const reservations: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.get(
     '/court/:courtId/available',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Reservations'],
         summary: 'Get available time slots for a court on a given date',
@@ -100,6 +103,7 @@ const reservations: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.post(
     '/',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Reservations'],
         summary: 'Create a reservation (verifies court exists first)',
@@ -151,6 +155,7 @@ const reservations: FastifyPluginAsync = async (fastify): Promise<void> => {
   fastify.delete(
     '/:id',
     {
+      preHandler: fastify.requireAuth,
       schema: {
         tags: ['Reservations'],
         summary: 'Cancel a reservation',

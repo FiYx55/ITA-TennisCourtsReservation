@@ -7,6 +7,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     '/register',
     {
       schema: {
+        security: [],
         tags: ['Auth'],
         summary: 'Register a new user',
         body: {
@@ -25,8 +26,12 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
       const { email, firstName, lastName, password } = request.body as any;
       try {
         const user = await createUser({ email, firstName, lastName, password });
+        const token = fastify.signToken({ id: user.id, email: user.email, role: user.role });
         reply.status(201);
-        return { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role };
+        return {
+          token,
+          user: { id: user.id, email: user.email, firstName: user.firstName, lastName: user.lastName, role: user.role },
+        };
       } catch (err: any) {
         const message = err?.details || 'Registration failed';
         reply.status(400);
@@ -40,6 +45,7 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
     '/login',
     {
       schema: {
+        security: [],
         tags: ['Auth'],
         summary: 'Login — verify credentials and return user profile',
         body: {
@@ -63,13 +69,17 @@ const auth: FastifyPluginAsync = async (fastify): Promise<void> => {
         }
         // Step 2: fetch full user profile
         const user = await getUser({ id: verification.userId });
+        const token = fastify.signToken({ id: user.id, email: user.email, role: user.role });
         return {
-          id: user.id,
-          email: user.email,
-          firstName: user.firstName,
-          lastName: user.lastName,
-          createdAt: user.createdAt,
-          role: user.role,
+          token,
+          user: {
+            id: user.id,
+            email: user.email,
+            firstName: user.firstName,
+            lastName: user.lastName,
+            createdAt: user.createdAt,
+            role: user.role,
+          },
         };
       } catch (err: any) {
         const message = err?.details || 'Login failed';
